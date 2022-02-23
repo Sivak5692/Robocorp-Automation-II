@@ -15,7 +15,7 @@ Orders robots from RobotSpareBin Industries Inc.
     Handle error on clicking submit
 
 *** Variables ***
-#${element_Exists}=    Does Page Contain Element    class:alert-danger
+#${element_Exists}=    Does Page Contain Element    class:alert-danger #test
 
 *** Keywords ***
 Open the intranet website
@@ -51,9 +51,8 @@ Submit the form
 Handle error on clicking submit
     ${element_Exists}=    Does Page Contain Element    class:alert-danger
     IF    ${element_Exists} == True
-        Sleep    5s
-        Wait Until Keyword Succeeds    5x    5s    Submit the form
+        Wait Until Keyword Succeeds    2x    5s    Submit the form
     END
-    #Scroll Element Into View    id:order-another
+    Run Keyword And Continue On Failure    Submit the form
     Click Button    id:order-another
     Wait And Click Button    class:btn-dark
