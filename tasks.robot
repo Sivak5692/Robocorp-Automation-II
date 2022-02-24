@@ -14,19 +14,11 @@ Library           RPA.Robocloud.Secrets
 
 *** Tasks ***
 Orders robots from RobotSpareBin Industries Inc.
-    #Open browser & Ask for users input
     Read url from vault and open browser
-    #Close the modal
-    #Click on Preview button
-    #Submit the form
-    #Handle error on clicking submit
-    #Store the order receipt as a PDF file
-    #Order another robot
-    #Create a ZIP file of the receipts
     [Teardown]    Close the browser
 
 *** Variables ***
-${counter}=       0
+${counter}        0
 ${csv}            orders.csv
 ${zipped_pdfs}    zipped_pdfs.zip
 
