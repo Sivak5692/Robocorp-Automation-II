@@ -1,7 +1,7 @@
 *** Settings ***
 Documentation     Orders robots from RobotSpareBin Industries Inc.
 ...               Process the robots and save the output in a zip.
-Library           RPA.Browser.Selenium    auto_close=${False}
+Library           RPA.Browser.Selenium
 Library           RPA.HTTP
 Library           RPA.Excel.Files
 Library           RPA.Tables
@@ -10,34 +10,40 @@ Library           RPA.PDF
 Library           RPA.FileSystem
 Library           RPA.Archive
 Library           RPA.Dialogs
-#Library          RPA.Robocloud.Secrets
+Library           RPA.Robocloud.Secrets
 
 *** Tasks ***
 Orders robots from RobotSpareBin Industries Inc.
-    #Read url from a vault and open browser
-    Close the modal
-    Click on Preview button
-    Submit the form
-    Handle error on clicking submit
-    Store the order receipt as a PDF file
-    Order another robot
-    Create a ZIP file of the receipts
+    #Open browser & Ask for users input
+    Read url from vault and open browser
+    #Close the modal
+    #Click on Preview button
+    #Submit the form
+    #Handle error on clicking submit
+    #Store the order receipt as a PDF file
+    #Order another robot
+    #Create a ZIP file of the receipts
+    [Teardown]    Close the browser
 
 *** Variables ***
 ${counter}=       0
 
 *** Keywords ***
 Open browser & Ask for users input
-    #[Arguments]    ${secret}
+    [Arguments]    ${secret}
+    ${secret}=    Get Secret    robotspare_url
+    Log    ${secret}[url]
     Add text input    name=URL    label=URL
     ${dialog}=    Show dialog    title=Enter URL of csv
-    Open Available Browser    https://robotsparebinindustries.com/#/robot-order    #${secret}[url]
+    #URL: https://robotsparebinindustries.com/#/robot-order
+    Open Available Browser    ${secret}[url]
     ${result}=    Wait dialog    ${dialog}
     Download and read the orders file as a table    ${result.URL}
 
-Read url from a vault and open browser
-    #${secret}=    Get Secret    robotspare_url
-    #Log    ${secret}[url]
+Read url from vault and open browser
+    ${secret}=    Get Secret    robotspare_url
+    Log    ${secret}[url]
+    Open browser & Ask for users input    ${secret}
 
 Close the modal
     Wait And Click Button    class:btn-warning
@@ -47,12 +53,12 @@ Download and read the orders file as a table
     Download    ${result.URL}    overwrite=True
     ${orders} =    Read table from CSV    orders.csv    header=True
     FOR    ${order}    IN    @{orders}
-        Close the modal
-        Fill the form    ${order}
         #${counter}=    Evaluate    ${counter} + 1
         #Exit For Loop If    ${counter} == 20
-        Wait Until Keyword Succeeds    10x    5s    Click on Preview button
-        Submit the form
+        Close the modal
+        Fill the form    ${order}
+        Click on Preview button
+        Wait Until Keyword Succeeds    10x    5s    Submit the form
         Handle error on clicking submit
         Store the order receipt as a PDF file
         Order another robot
@@ -77,7 +83,7 @@ Handle error on clicking submit
     ${alertElementExists}=    Does Page Contain Element    class:alert-danger
     ${submitBtnStillExists}=    Does Page Contain Element    id:order
     IF    ${alertElementExists} == True
-        Wait Until Keyword Succeeds    15x    5s    Submit the form
+        Wait Until Keyword Succeeds    10x    5s    Submit the form
         IF    ${submitBtnStillExists} == True
             Run Keyword And Ignore Error    Submit the form
         END
@@ -103,3 +109,6 @@ Order another robot
 
 Create a ZIP file of the receipts
     Archive Folder With Zip    ${OUTPUT_DIR}${/}pdfs    zipped_pdfs.zip
+
+Close the browser
+    Close Browser
