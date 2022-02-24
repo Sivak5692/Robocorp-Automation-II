@@ -27,6 +27,8 @@ Orders robots from RobotSpareBin Industries Inc.
 
 *** Variables ***
 ${counter}=       0
+${csv}            orders.csv
+${zipped_pdfs}    zipped_pdfs.zip
 
 *** Keywords ***
 Open browser & Ask for users input
@@ -51,7 +53,7 @@ Close the modal
 Download and read the orders file as a table
     [Arguments]    ${result.URL}
     Download    ${result.URL}    overwrite=True
-    ${orders} =    Read table from CSV    orders.csv    header=True
+    ${orders}=    Read table from CSV    ${csv}    header=True
     FOR    ${order}    IN    @{orders}
         #${counter}=    Evaluate    ${counter} + 1
         #Exit For Loop If    ${counter} == 20
@@ -108,7 +110,7 @@ Order another robot
     Click Button    id:order-another
 
 Create a ZIP file of the receipts
-    Archive Folder With Zip    ${OUTPUT_DIR}${/}pdfs    zipped_pdfs.zip
+    Archive Folder With Zip    ${OUTPUT_DIR}${/}pdfs    ${zipped_pdfs}
 
 Close the browser
     Close Browser
